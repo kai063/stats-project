@@ -53,15 +53,16 @@ The findings could inform policy decisions on whether to prioritise electricity 
 		\par{}
 		We removed world regions from the data by keeping only entries with country code.
 We also removed owid\_regions, because they do not affect our thesis. 
+We excluded Lesotho as it has recorded 0 TWh in the source data, which prevents log transformation.
 We filtered countries with data entries in 2000 – 2023, to ensure consistent comparison between years. This specific range is because HDI and GDP entries are only until year 2023 and many developing countries do not have any entries before the year 2000.
 		\par{} 
 		This step removed following countries from our analysis:
-Antigua and Barbuda, Belarus (ex USSR state reporting late), Bermuda, Cayman Islands, Montenegro, South Sudan (recent independency), Ukraine (former USSR state reporting late), Venezuela (Data suppression).
+Antigua and Barbuda, Belarus (former USSR state reporting late), Bermuda, Cayman Islands, Montenegro, South Sudan (recent independence), Ukraine (former USSR state reporting late), Venezuela (Data suppression).
 		\par{}
 		So in the end we were left with two important datasets final\_start\_HDI and final\_end\_HDI, both containing 172 countries with 9 columns (code ,year, total\_generation\_\_twh, hdi\_\_sex\_total, rgdpo, change\_gdp, elec\_intensity, predicted\_log\_twh, residual)
 		\subsection*{Descriptive statistics}
 		\par{}
-		Electricity production and real GDP both exhibit strong right-skew: the mean exceeds the median by a factor of 11 for electricity and 7.6 for GDP. The standard deviation in each case dwarfs the mean. A handful of large producers (China, USA, India) pull the average upward while the typical country sits near the median. This dispersion across orders of magnitude is what motivates the log transformation in later section.
+		Electricity production and real GDP both exhibit strong right-skew: the mean exceeds the median by a factor of 11 for electricity and 7.6 for GDP. The standard deviation in each case dwarfs the mean. A handful of large producers (China, USA, India) pull the average upward while the typical country sits near the median. This dispersion across orders of magnitude is what motivates the log transformation in a later section.
 		\par{}
 		HDI shows a different pattern. The mean and median are nearly equal and the distribution is mildly left-skewed - more countries cluster at the upper end of the scale, with a thin tail toward lower development. The bounded nature of HDI limits the scope for variation among developed countries and weakens any linear relationship with electricity at the upper range.
 		\par{}
@@ -78,7 +79,7 @@ Antigua and Barbuda, Belarus (ex USSR state reporting late), Bermuda, Cayman Isl
 		\par{}
 		We initially plotted real GDP against electricity production on a linear scale.
 		\par{}
-		There is a positive correlation in electricity production and real gdp with $R^2 = 0.906$. However it is not well interpretable as the whole graph is scaled by the biggest observations, China and the United States, whose values lie an order of magnitude above all others. The remaining majority of countries collapsed into a dense cluster near the origin.		
+		There is a positive correlation between electricity production and real GDP with $R^2 = 0.906$. However it is not well interpretable as the whole graph is scaled by the biggest observations, China and the United States, whose values lie an order of magnitude above all others. The remaining majority of countries collapsed into a dense cluster near the origin.		
 		\par{}
 		hist\_electricity
 		\\\begin{center}
@@ -92,7 +93,7 @@ Antigua and Barbuda, Belarus (ex USSR state reporting late), Bermuda, Cayman Isl
 			\\\includegraphics[scale = 0.5]{start_end_graph.pdf}
 		\end{center}
 				\par{}
-		We used log-log graph to see the relationship better for all countries. The correlations are very strong as well. If we compare the year 2000 and 2023, we can see that the correlation increased as the countries follow the trend more tightly. We can also see general economic progress, as countries moving in upwards and to the right.
+		We used a log-log graph to see the relationship better for all countries. The correlations are very strong as well. If we compare the year 2000 and 2023, we can see that the correlation increased as the countries follow the trend more tightly. We can also see general economic progress, as countries moving upwards and to the right.
 		\newpage
 		\par{}
 		graph\_hdi
@@ -100,58 +101,54 @@ Antigua and Barbuda, Belarus (ex USSR state reporting late), Bermuda, Cayman Isl
 			\\\includegraphics[scale = 0.5]{total_graph_hdi.pdf}
 		\end{center}
 		\par{}
-		Log-transformed correlation between electricity production and HDI is $r = 0.568$ ($r^2 = 0.322$), indicating a moderate positive relationship. From this graph we can see that the correlation (also from the previous cor function) between HDI and electricity production is 
-smaller and the linear regression line is flatter. This is due to the fact that once a country reaches certain industrial level
-it does not need that much electricity (due to effectiveness, services, etc.) to increase it's HDI which more so from a certain point depends on the social structures more than industrial production or other electricity dependent economic activities.
+		Log-transformed correlation between electricity production and HDI is $r = 0.568$ ($r^2 = 0.322$), indicating a moderate positive relationship. From this graph we can see that the correlation between HDI and electricity production is 
+smaller and the linear regression line is flatter. HDI is bounded on [0,1] by construction, so countries near the upper limit have little room to move regardless of how much their electricity output grows; this flattens the slope at the top of the distribution. A secondary economic explanation is that once a country reaches a certain industrial level, additional electricity contributes less to HDI gains. Beyond that point, HDI depends more on social structures than on industrial output.
 		\par{}
 		Aruba, British Virgin Islands, Macao, Montserrat, and Taiwan lack 2023 HDI data and are excluded from analysis.
 
 
 	\subsection*{Central findings}
 		\par{}
-		We initially plotted real GDP against electricity production on a linear scale. There is positive correlation with R² = 0.906, but this graph is dominated by two observations, China and the United States, whose values lie an order of magnitude above all others. The remaining countries collapse into a dense cluster near the origin and cannot be visualised properly. They contribute little to the estimated slope.
-The distribution of electricity production is highly right-skewed on the linear scale. Most countries cluster at low to moderate output, while a small number produce volumes orders of magnitude greater. This Pareto-like shape reflects the concentration of industrial capacity in a small group of large economies. The log transformation addresses this by placing countries on a scale where proportional rather than absolute differences are visible, which is the appropriate framing when values span several orders of magnitude.
+		We initially plotted real GDP against electricity production on a linear scale. There is a positive correlation with $R^2 = 0.906$, but this graph is dominated by two observations, China and the United States, whose values lie an order of magnitude above all others (these two points effectively determine the slope of the regression). The remaining countries collapse into a dense cluster near the origin and cannot be distinguished on this scale.
 		\par{}
-		While the overall relationship is strong, individual countries deviate systematically from the trend. We computed residuals from the log-log regression to identify countries whose electricity production differs substantially from what their GDP level would predict
+		The distribution of electricity production is highly right-skewed on the linear scale. Most countries cluster at low to moderate output, while a small number produce volumes orders of magnitude greater. This Pareto-like shape reflects the concentration of industrial capacity in a small group of large economies. The log transformation addresses this by placing countries on a scale where proportional rather than absolute differences are visible, which is the appropriate framing when values span several orders of magnitude.
 		\par{}
-		Below the trend were:
-\\Low-income countries with weak grid infrastructure (Chad, Sierra Leone, Niger, Guinea-Bissau, Djibouti) where GDP exists despite limited electrification. 
-Small economies that import electricity from neighbouring countries (Luxembourg, Macao, Palestine).
+		While the overall relationship is strong, individual countries deviate systematically from the trend. We computed residuals from the log-log regression to identify countries whose electricity production differs substantially from what their GDP level would predict.
 		\par{}
-		Above the trend (more electricity than GDP predicts) were:
-\\hydroelectric exporters (Bhutan, Iceland, Laos, Paraguay, Tajikistan)
-resource-intensive small economies (Bahrain, Kuwait).
+		Below the trend are two groups: low-income countries with weak grid infrastructure (Chad, Sierra Leone, Niger, Guinea-Bissau, Djibouti), where GDP exists despite limited electrification; and small economies that import electricity from neighbouring countries (Luxembourg, Macao, Palestine).
+		\par{}
+		Above the trend are also two groups: hydroelectric exporters (Bhutan, Iceland, Laos, Paraguay, Tajikistan); and resource-intensive small economies (Bahrain, Kuwait).
 		\par{}
 		These outliers reveal that the GDP-electricity relationship is affected by industrial composition, resource endowment, and trade in electricity.
 		\begin{table}[!htbp] \centering
-\caption{}
-\label{}
+\caption{Top 5 negative and top 5 positive residuals from the 2023 log-log regression of GDP on electricity production. Residual = log10(actual electricity) - log10(predicted electricity). Factor = $10^{\text{residual}}$: a factor of 0.09 means the country produces 9\% of its predicted electricity, a factor of 10.96 means nearly 11x predicted.}
+\label{tab:residuals}
 \begin{tabular}{@{\extracolsep{5pt}} cccccc}
 \\[-1.8ex]\hline
 \hline \\[-1.8ex]
-direction & entity & log10\_elec & log10\_gdp & residual & factor \\
+Direction & Country & log10(elec) & log10(GDP) & Residual & Factor \\
 \hline \\[-1.8ex]
-Below & Chad & $$-$0.440$ & $10.620$ & $$-$1.060$ & $0.090$ \\
-Below & Sierra Leone & $$-$0.680$ & $10.380$ & $$-$1.040$ & $0.090$ \\
-Below & Macao & $$-$0.180$ & $10.660$ & $$-$0.840$ & $0.140$ \\
-Below & Somalia & $$-$0.380$ & $10.410$ & $$-$0.760$ & $0.170$ \\
-Below & Guinea-Bissau & $$-$1.100$ & $9.720$ & $$-$0.740$ & $0.180$ \\
-Above & Barbados & $0.040$ & $9.490$ & $0.650$ & $4.470$ \\
-Above & Paraguay & $1.720$ & $11.010$ & $0.690$ & $4.900$ \\
-Above & Laos & $1.720$ & $10.810$ & $0.900$ & $7.940$ \\
-Above & Iceland & $1.300$ & $10.390$ & $0.930$ & $8.510$ \\
-Above & Bhutan & $1.050$ & $10.050$ & $1.040$ & $10.960$ \\
+Below & Chad & $-0.44$ & $10.62$ & $-1.06$ & $0.09$ \\
+Below & Sierra Leone & $-0.68$ & $10.38$ & $-1.04$ & $0.09$ \\
+Below & Macao & $-0.18$ & $10.66$ & $-0.84$ & $0.14$ \\
+Below & Somalia & $-0.38$ & $10.41$ & $-0.76$ & $0.17$ \\
+Below & Guinea-Bissau & $-1.10$ & $9.72$ & $-0.74$ & $0.18$ \\
+Above & Barbados & $0.04$ & $9.49$ & $0.65$ & $4.47$ \\
+Above & Paraguay & $1.72$ & $11.01$ & $0.69$ & $4.90$ \\
+Above & Laos & $1.72$ & $10.81$ & $0.90$ & $7.94$ \\
+Above & Iceland & $1.30$ & $10.39$ & $0.93$ & $8.51$ \\
+Above & Bhutan & $1.05$ & $10.05$ & $1.04$ & $10.96$ \\
 \hline \\[-1.8ex]
 \end{tabular}
 \end{table}
 	\subsection*{Limitations}
 		\par{}
 		We found a positive correlation between electricity production and real GDP.
-The causation remains unanswered, we suspect there is a reverse causation: GDP funds grid infrastructure and electricity enables economic activity.
+The causation remains unanswered, we suspect that causation runs in both directions: GDP funds grid infrastructure and electricity enables economic activity.
 		\par{}
-		However, we did not account for the population of the country at all. It might very likely be that bigger population causes both increase in GPD and in electricity production. In order to understand the deeper relationship between these two, we would need compute everything per capita, which could be very interesting further study.
+		However, we did not account for the population of the country at all. It might very likely be that bigger population causes both increase in GDP and in electricity production. In order to understand the deeper relationship between these two, we would need to compute everything per capita, which could be an interesting topic for further study.
 
 	\subsection*{Collaboration}
 		\par{}
-		We brainstormed the idea toghether, afterwards Max and Kryštof did the Data Cleaning, Descriptive statistics, Visualizations and report. Kristýna then concluded the Central findings, Limitations and Slides.
+		We brainstormed the idea together, afterwards Max and Kryštof did the Data Cleaning, Descriptive statistics, Visualizations. Kristýna then wrote the Central findings, Limitations and Slides.
 \end{document}
